@@ -2,11 +2,16 @@ function normalizeText(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function normalizePayload(payload) {
+  return payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
+}
+
 function validateRegisterPayload(payload) {
+  const safePayload = normalizePayload(payload);
   const errors = [];
-  const username = normalizeText(payload.username);
-  const email = normalizeText(payload.email).toLowerCase();
-  const password = normalizeText(payload.password);
+  const username = normalizeText(safePayload.username);
+  const email = normalizeText(safePayload.email).toLowerCase();
+  const password = normalizeText(safePayload.password);
 
   if (!username) {
     errors.push('username is required');
@@ -30,9 +35,10 @@ function validateRegisterPayload(payload) {
 }
 
 function validateLoginPayload(payload) {
+  const safePayload = normalizePayload(payload);
   const errors = [];
-  const email = normalizeText(payload.email).toLowerCase();
-  const password = normalizeText(payload.password);
+  const email = normalizeText(safePayload.email).toLowerCase();
+  const password = normalizeText(safePayload.password);
 
   if (!email) {
     errors.push('email is required');

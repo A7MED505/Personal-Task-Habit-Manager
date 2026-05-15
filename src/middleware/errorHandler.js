@@ -29,6 +29,13 @@ function errorHandler(error, req, res, next) {
     });
   }
 
+  if (error instanceof SyntaxError && error.status === 400 && error.type === 'entity.parse.failed') {
+    return res.status(400).json({
+      success: false,
+      message: 'Request body must be valid JSON'
+    });
+  }
+
   if (error && error.code === 11000) {
     return res.status(409).json({
       success: false,
