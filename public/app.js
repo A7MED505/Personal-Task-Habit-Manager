@@ -256,7 +256,11 @@ function renderTaskList(list, container, compact = false) {
 
     const actions = document.createElement('div');
     actions.className = 'task-actions';
+    const doneBtn = task.status !== 'done'
+      ? `<button type="button" data-action="mark-done" data-id="${escapeHtml(task._id)}" class="success">Done</button>`
+      : '';
     actions.innerHTML = `
+      ${doneBtn}
       <button type="button" data-action="edit-task" data-id="${escapeHtml(task._id)}">Edit</button>
       <button type="button" data-action="delete-task" data-id="${escapeHtml(task._id)}" class="danger">Delete</button>
     `;
@@ -478,6 +482,20 @@ async function saveCategory(event) {
   }
 }
 
+async function markTaskDone(id) {
+  try {
+    await request(`/tasks/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'done' })
+    });
+    setMessage('Task marked as done.');
+    await refreshData();
+  } catch (error) {
+    setMessage(error.message, 'error');
+  }
+}
+
 async function deleteTask(id) {
   if (!window.confirm('Delete this task?')) {
     return;
@@ -526,6 +544,10 @@ function handleTaskListAction(event) {
 
   if (action === 'delete-task') {
     deleteTask(id);
+  }
+
+  if (action === 'mark-done') {
+    markTaskDone(id);
   }
 }
 

@@ -254,12 +254,17 @@ body::before {
 .form-grid textarea {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  background: #0d1a2c;
   color: var(--text);
   border-radius: 16px;
   padding: 12px 14px;
   font: inherit;
   outline: none;
+}
+
+.form-grid select option {
+  background: #0d1a2c;
+  color: var(--text);
 }
 
 .form-grid textarea {
@@ -381,6 +386,11 @@ body::before {
 .task-actions .danger,
 .category-actions .danger {
   color: var(--danger);
+}
+
+.task-actions .success {
+  color: var(--success);
+  border-color: rgba(125, 226, 156, 0.3);
 }
 
 .compact .task-card {
