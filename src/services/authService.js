@@ -16,10 +16,9 @@ async function register(payload, { UserModel }) {
 
   const { username, email, password } = validation.normalized;
 
-  const existing = await UserModel.findOne({ $or: [{ email }, { username }] });
+  const existing = await UserModel.findOne({ email });
   if (existing) {
-    const field = existing.email === email ? 'email' : 'username';
-    throw new APIError(409, `This ${field} is already registered`);
+    throw new APIError(409, 'This email is already registered');
   }
 
   const user = await UserModel.create({ username, email, password });
