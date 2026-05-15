@@ -72,16 +72,17 @@ async function ensureCategoryExists(categoryId, CategoryModel) {
   return category;
 }
 
-async function listTasks(query, { TaskModel }) {
+async function listTasks(query, { TaskModel, userId }) {
   const criteria = buildTaskQuery(query);
+  const scopedFilter = { ...criteria.filter, userId };
   const [tasks, total] = await Promise.all([
-    TaskModel.find(criteria.filter)
+    TaskModel.find(scopedFilter)
       .populate('categoryId')
       .sort(criteria.sort)
       .skip(criteria.skip)
       .limit(criteria.limit)
       .lean(),
-    TaskModel.countDocuments(criteria.filter)
+    TaskModel.countDocuments(scopedFilter)
   ]);
 
   return {
@@ -101,12 +102,12 @@ async function listTasks(query, { TaskModel }) {
   };
 }
 
-async function getTaskById(id, { TaskModel }) {
+async function getTaskById(id, { TaskModel, userId }) {
   if (!mongoose.isValidObjectId(id)) {
     throw new APIError(400, 'Invalid task identifier');
   }
 
-  const task = await TaskModel.findById(id).populate('categoryId').lean();
+  const task = await TaskModel.findOne({ _id: id, userId }).populate('categoryId').lean();
   if (!task) {
     throw new APIError(404, 'Task not found');
   }
@@ -114,20 +115,20 @@ async function getTaskById(id, { TaskModel }) {
   return task;
 }
 
-async function createTask(payload, { TaskModel, CategoryModel }) {
+async function createTask(payload, { TaskModel, CategoryModel, userId }) {
   const validation = validateTaskPayload(payload, { partial: false });
   if (!validation.valid) {
     throw new APIError(422, 'Task validation failed', validation.errors);
   }
 
   await ensureCategoryExists(validation.normalized.categoryId, CategoryModel);
-  const taskData = applyCompletionMetadata({ ...validation.normalized });
+  const taskData = applyCompletionMetadata({ ...validation.normalized, userId });
   const createdTask = await TaskModel.create(taskData);
   await createdTask.populate('categoryId');
   return createdTask.toObject();
 }
 
-async function updateTask(id, payload, { TaskModel, CategoryModel }) {
+async function updateTask(id, payload, { TaskModel, CategoryModel, userId }) {
   if (!mongoose.isValidObjectId(id)) {
     throw new APIError(400, 'Invalid task identifier');
   }
@@ -137,7 +138,7 @@ async function updateTask(id, payload, { TaskModel, CategoryModel }) {
     throw new APIError(422, 'Task validation failed', validation.errors);
   }
 
-  const task = await TaskModel.findById(id);
+  const task = await TaskModel.findOne({ _id: id, userId });
   if (!task) {
     throw new APIError(404, 'Task not found');
   }
@@ -159,12 +160,12 @@ async function updateTask(id, payload, { TaskModel, CategoryModel }) {
   return task.toObject();
 }
 
-async function deleteTask(id, { TaskModel }) {
+async function deleteTask(id, { TaskModel, userId }) {
   if (!mongoose.isValidObjectId(id)) {
     throw new APIError(400, 'Invalid task identifier');
   }
 
-  const deletedTask = await TaskModel.findByIdAndDelete(id);
+  const deletedTask = await TaskModel.findOneAndDelete({ _id: id, userId });
   if (!deletedTask) {
     throw new APIError(404, 'Task not found');
   }
@@ -172,13 +173,14 @@ async function deleteTask(id, { TaskModel }) {
   return deletedTask.toObject();
 }
 
-async function getTaskStats({ TaskModel }) {
+async function getTaskStats({ TaskModel, userId }) {
   const [total, todo, inProgress, done, overdue] = await Promise.all([
-    TaskModel.countDocuments(),
-    TaskModel.countDocuments({ status: 'todo' }),
-    TaskModel.countDocuments({ status: 'in-progress' }),
-    TaskModel.countDocuments({ status: 'done' }),
+    TaskModel.countDocuments({ userId }),
+    TaskModel.countDocuments({ userId, status: 'todo' }),
+    TaskModel.countDocuments({ userId, status: 'in-progress' }),
+    TaskModel.countDocuments({ userId, status: 'done' }),
     TaskModel.countDocuments({
+      userId,
       dueDate: { $ne: null, $lt: new Date() },
       status: { $ne: 'done' }
     })

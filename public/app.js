@@ -1,6 +1,8 @@
 const API_BASE = '/api';
 
 const state = {
+  token: localStorage.getItem('tf_token') || '',
+  user: JSON.parse(localStorage.getItem('tf_user') || 'null'),
   tasks: [],
   categories: [],
   stats: {
@@ -66,7 +68,20 @@ function cacheElements() {
     'statProgress',
     'statDone',
     'statOverdue',
-    'statCategories'
+    'statCategories',
+    'heroUsername',
+    'logoutBtn',
+    'authScreen',
+    'appScreen',
+    'loginForm',
+    'loginEmail',
+    'loginPassword',
+    'authError',
+    'registerForm',
+    'regUsername',
+    'regEmail',
+    'regPassword',
+    'registerError'
   ];
 
   ids.forEach((id) => {
@@ -143,19 +158,22 @@ function escapeHtml(text) {
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {})
-    },
-    ...options
-  });
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (state.token) {
+    headers['Authorization'] = `Bearer ${state.token}`;
+  }
+  const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
   if (response.status === 204) {
     return null;
   }
 
   const payload = await response.json().catch(() => null);
+
+  if (response.status === 401) {
+    logout();
+    throw new Error('Session expired. Please sign in again.');
+  }
 
   if (!response.ok) {
     const details = payload?.details ? ` ${payload.details.join(', ')}` : '';
@@ -616,6 +634,86 @@ function bindEvents() {
   elements.taskList.addEventListener('click', handleTaskListAction);
   elements.dashboardRecent.addEventListener('click', handleTaskListAction);
   elements.categoryList.addEventListener('click', handleCategoryListAction);
+  elements.logoutBtn.addEventListener('click', logout);
+
+  document.querySelectorAll('[data-auth-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.authTab;
+      document.querySelectorAll('[data-auth-tab]').forEach((b) => b.classList.toggle('active', b.dataset.authTab === tab));
+      elements.loginForm.classList.toggle('hidden', tab !== 'login');
+      elements.registerForm.classList.toggle('hidden', tab !== 'register');
+      elements.authError.classList.add('hidden');
+      elements.registerError.classList.add('hidden');
+    });
+  });
+
+  elements.loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    elements.authError.classList.add('hidden');
+    try {
+      const data = await request('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: elements.loginEmail.value.trim(),
+          password: elements.loginPassword.value
+        })
+      });
+      saveAuth(data);
+      showApp();
+      await refreshData();
+    } catch (err) {
+      elements.authError.textContent = err.message;
+      elements.authError.classList.remove('hidden');
+    }
+  });
+
+  elements.registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    elements.registerError.classList.add('hidden');
+    try {
+      const data = await request('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          username: elements.regUsername.value.trim(),
+          email: elements.regEmail.value.trim(),
+          password: elements.regPassword.value
+        })
+      });
+      saveAuth(data);
+      showApp();
+      await refreshData();
+    } catch (err) {
+      elements.registerError.textContent = err.message;
+      elements.registerError.classList.remove('hidden');
+    }
+  });
+}
+
+function saveAuth(data) {
+  state.token = data.token;
+  state.user = data.user;
+  localStorage.setItem('tf_token', data.token);
+  localStorage.setItem('tf_user', JSON.stringify(data.user));
+}
+
+function logout() {
+  state.token = '';
+  state.user = null;
+  localStorage.removeItem('tf_token');
+  localStorage.removeItem('tf_user');
+  elements.authScreen.classList.remove('hidden');
+  elements.appScreen.classList.add('hidden');
+  elements.loginEmail.value = '';
+  elements.loginPassword.value = '';
+  elements.authError.classList.add('hidden');
+}
+
+function showApp() {
+  elements.authScreen.classList.add('hidden');
+  elements.appScreen.classList.remove('hidden');
+  if (state.user) {
+    elements.heroUsername.textContent = state.user.username;
+  }
 }
 
 async function bootstrap() {
@@ -624,7 +722,11 @@ async function bootstrap() {
   setView('dashboard');
   resetTaskForm();
   resetCategoryForm();
-  await refreshData();
+
+  if (state.token) {
+    showApp();
+    await refreshData();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', bootstrap);

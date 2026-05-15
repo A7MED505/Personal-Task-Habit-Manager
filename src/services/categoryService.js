@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const APIError = require('../utils/apiError');
 const { validateCategoryPayload, normalizeText } = require('../validators/categoryValidator');
 
-async function listCategories(query, { CategoryModel }) {
+async function listCategories(query, { CategoryModel, userId }) {
   const search = normalizeText(query.search || '');
-  const filter = {};
+  const filter = { userId };
 
   if (search) {
     filter.name = { $regex: search, $options: 'i' };
@@ -14,12 +14,12 @@ async function listCategories(query, { CategoryModel }) {
   return { categories, search };
 }
 
-async function getCategoryById(id, { CategoryModel }) {
+async function getCategoryById(id, { CategoryModel, userId }) {
   if (!mongoose.isValidObjectId(id)) {
     throw new APIError(400, 'Invalid category identifier');
   }
 
-  const category = await CategoryModel.findById(id).lean();
+  const category = await CategoryModel.findOne({ _id: id, userId }).lean();
   if (!category) {
     throw new APIError(404, 'Category not found');
   }
@@ -27,17 +27,17 @@ async function getCategoryById(id, { CategoryModel }) {
   return category;
 }
 
-async function createCategory(payload, { CategoryModel }) {
+async function createCategory(payload, { CategoryModel, userId }) {
   const validation = validateCategoryPayload(payload, { partial: false });
   if (!validation.valid) {
     throw new APIError(422, 'Category validation failed', validation.errors);
   }
 
-  const createdCategory = await CategoryModel.create(validation.normalized);
+  const createdCategory = await CategoryModel.create({ ...validation.normalized, userId });
   return createdCategory.toObject();
 }
 
-async function updateCategory(id, payload, { CategoryModel }) {
+async function updateCategory(id, payload, { CategoryModel, userId }) {
   if (!mongoose.isValidObjectId(id)) {
     throw new APIError(400, 'Invalid category identifier');
   }
@@ -47,7 +47,7 @@ async function updateCategory(id, payload, { CategoryModel }) {
     throw new APIError(422, 'Category validation failed', validation.errors);
   }
 
-  const category = await CategoryModel.findById(id);
+  const category = await CategoryModel.findOne({ _id: id, userId });
   if (!category) {
     throw new APIError(404, 'Category not found');
   }
@@ -57,17 +57,17 @@ async function updateCategory(id, payload, { CategoryModel }) {
   return category.toObject();
 }
 
-async function deleteCategory(id, { CategoryModel, TaskModel }) {
+async function deleteCategory(id, { CategoryModel, TaskModel, userId }) {
   if (!mongoose.isValidObjectId(id)) {
     throw new APIError(400, 'Invalid category identifier');
   }
 
-  const taskCount = await TaskModel.countDocuments({ categoryId: id });
+  const taskCount = await TaskModel.countDocuments({ categoryId: id, userId });
   if (taskCount > 0) {
     throw new APIError(409, 'Category is in use by tasks and cannot be deleted');
   }
 
-  const deletedCategory = await CategoryModel.findByIdAndDelete(id);
+  const deletedCategory = await CategoryModel.findOneAndDelete({ _id: id, userId });
   if (!deletedCategory) {
     throw new APIError(404, 'Category not found');
   }

@@ -13,19 +13,65 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+
+    <div id="authScreen" class="auth-screen">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <h1>TaskFlow Studio</h1>
+          <p>Sign in to manage your tasks</p>
+        </div>
+
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-auth-tab="login">Sign In</button>
+          <button class="auth-tab" data-auth-tab="register">Create Account</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <div id="authError" class="auth-error hidden"></div>
+          <label>
+            Email
+            <input id="loginEmail" type="email" placeholder="you@example.com" required autocomplete="email" />
+          </label>
+          <label>
+            Password
+            <input id="loginPassword" type="password" placeholder="Your password" required autocomplete="current-password" />
+          </label>
+          <button class="primary-button full-btn" type="submit">Sign In</button>
+        </form>
+
+        <form id="registerForm" class="auth-form hidden">
+          <div id="registerError" class="auth-error hidden"></div>
+          <label>
+            Username
+            <input id="regUsername" type="text" minlength="3" maxlength="32" placeholder="Choose a username" required autocomplete="username" />
+          </label>
+          <label>
+            Email
+            <input id="regEmail" type="email" placeholder="you@example.com" required autocomplete="email" />
+          </label>
+          <label>
+            Password
+            <input id="regPassword" type="password" minlength="6" placeholder="At least 6 characters" required autocomplete="new-password" />
+          </label>
+          <button class="primary-button full-btn" type="submit">Create Account</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="appScreen" class="hidden">
     <div class="page-shell">
       <header class="hero">
         <div>
           <p class="eyebrow">Web-based CRUD Application</p>
           <h1>TaskFlow Studio</h1>
-          <p class="hero-copy">
-            A vanilla JavaScript SPA for managing tasks, categories, search, priority, and status without page reloads.
-          </p>
+         
         </div>
         <div class="hero-actions">
+          <span class="hero-username" id="heroUsername"></span>
           <button class="nav-button active" data-view="dashboard">Dashboard</button>
           <button class="nav-button" data-view="tasks">Tasks</button>
           <button class="nav-button" data-view="categories">Categories</button>
+          <button class="ghost-button danger-ghost" id="logoutBtn" type="button">Sign Out</button>
         </div>
       </header>
 
@@ -223,6 +269,7 @@
           </div>
         </div>
       </section>
+    </div>
     </div>
 
     <script src="/app.js"></script>

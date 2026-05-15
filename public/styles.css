@@ -408,6 +408,119 @@ body::before {
   display: none !important;
 }
 
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  border: 1px solid var(--panel-border);
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-logo h1 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+}
+
+.auth-logo p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 16px;
+}
+
+.auth-tab {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: color 160ms, background 160ms;
+}
+
+.auth-tab.active {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.auth-form input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0d1a2c;
+  color: var(--text);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.auth-form input:focus {
+  border-color: rgba(85, 214, 190, 0.75);
+  box-shadow: 0 0 0 3px rgba(85, 214, 190, 0.15);
+}
+
+.auth-error {
+  background: rgba(255, 111, 125, 0.12);
+  border: 1px solid rgba(255, 111, 125, 0.3);
+  color: #ffc4cb;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 0.9rem;
+}
+
+.full-btn {
+  width: 100%;
+  border-radius: 14px;
+}
+
+.hero-username {
+  color: var(--accent);
+  font-weight: 600;
+  padding: 10px 4px;
+  font-size: 0.95rem;
+}
+
+.danger-ghost {
+  color: var(--danger);
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
