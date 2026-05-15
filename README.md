@@ -120,7 +120,3 @@ curl -X POST http://localhost:3000/api/tasks ^
 - Unit tests cover validation and core CRUD logic helpers.
 - Swagger UI can be used to inspect and try every API endpoint.
 - The frontend updates with `fetch()` without page reloads.
-
-## Arabic Summary
-
-هذا المشروع عبارة عن تطبيق CRUD ويب كامل بواجهة Vanilla JavaScript وواجهة برمجة RESTful API مبنية على Express وMongoDB، مع Swagger واختبارات منطق العمل.
