@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
-
-const ALLOWED_STATUSES = ['todo', 'in-progress', 'done'];
-const ALLOWED_PRIORITIES = ['low', 'medium', 'high'];
+const { TASK_STATUSES, TASK_PRIORITIES } = require('../constants/task');
 
 function normalizeText(value) {
   if (typeof value !== 'string') {
@@ -50,7 +48,7 @@ function validateTaskPayload(payload, options = {}) {
 
   if (payload.status !== undefined) {
     const status = normalizeText(payload.status);
-    if (!ALLOWED_STATUSES.includes(status)) {
+    if (!TASK_STATUSES.includes(status)) {
       errors.push('Status must be one of: todo, in-progress, done');
     } else {
       normalized.status = status;
@@ -59,7 +57,7 @@ function validateTaskPayload(payload, options = {}) {
 
   if (payload.priority !== undefined) {
     const priority = normalizeText(payload.priority);
-    if (!ALLOWED_PRIORITIES.includes(priority)) {
+    if (!TASK_PRIORITIES.includes(priority)) {
       errors.push('Priority must be one of: low, medium, high');
     } else {
       normalized.priority = priority;
@@ -93,8 +91,6 @@ function validateTaskPayload(payload, options = {}) {
 }
 
 module.exports = {
-  ALLOWED_STATUSES,
-  ALLOWED_PRIORITIES,
   validateTaskPayload,
   normalizeText,
   normalizeDate

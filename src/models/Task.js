@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { TASK_STATUSES, TASK_PRIORITIES } = require('../constants/task');
 
 const taskSchema = new mongoose.Schema(
   {
@@ -21,12 +22,12 @@ const taskSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['todo', 'in-progress', 'done'],
+      enum: TASK_STATUSES,
       default: 'todo'
     },
     priority: {
       type: String,
-      enum: ['low', 'medium', 'high'],
+      enum: TASK_PRIORITIES,
       default: 'medium'
     },
     categoryId: {

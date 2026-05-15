@@ -1,4 +1,5 @@
 const swaggerJsdoc = require('swagger-jsdoc');
+const { TASK_STATUSES, TASK_PRIORITIES } = require('../constants/task');
 
 const swaggerDefinition = {
   openapi: '3.0.3',
@@ -31,8 +32,8 @@ const swaggerDefinition = {
           _id: { type: 'string', example: '663d3f5e9b5e3d0012345679' },
           title: { type: 'string', example: 'Read chapter 3' },
           description: { type: 'string', example: 'Focus on concept summaries' },
-          status: { type: 'string', enum: ['todo', 'in-progress', 'done'] },
-          priority: { type: 'string', enum: ['low', 'medium', 'high'] },
+          status: { type: 'string', enum: TASK_STATUSES },
+          priority: { type: 'string', enum: TASK_PRIORITIES },
           categoryId: { oneOf: [{ $ref: '#/components/schemas/Category' }, { type: 'null' }] },
           dueDate: { type: ['string', 'null'], format: 'date-time' },
           completedAt: { type: ['string', 'null'], format: 'date-time' },
@@ -46,8 +47,8 @@ const swaggerDefinition = {
         properties: {
           title: { type: 'string', example: 'Prepare lesson outline' },
           description: { type: 'string', example: 'Summarize the main points' },
-          status: { type: 'string', enum: ['todo', 'in-progress', 'done'], example: 'todo' },
-          priority: { type: 'string', enum: ['low', 'medium', 'high'], example: 'medium' },
+          status: { type: 'string', enum: TASK_STATUSES, example: 'todo' },
+          priority: { type: 'string', enum: TASK_PRIORITIES, example: 'medium' },
           categoryId: { type: 'string', nullable: true, example: '663d3f5e9b5e3d0012345678' },
           dueDate: { type: 'string', format: 'date-time', nullable: true }
         }
@@ -129,8 +130,8 @@ const swaggerDefinition = {
         summary: 'List tasks',
         parameters: [
           { in: 'query', name: 'search', schema: { type: 'string' } },
-          { in: 'query', name: 'status', schema: { type: 'string', enum: ['todo', 'in-progress', 'done'] } },
-          { in: 'query', name: 'priority', schema: { type: 'string', enum: ['low', 'medium', 'high'] } },
+          { in: 'query', name: 'status', schema: { type: 'string', enum: TASK_STATUSES } },
+          { in: 'query', name: 'priority', schema: { type: 'string', enum: TASK_PRIORITIES } },
           { in: 'query', name: 'categoryId', schema: { type: 'string' } },
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1 } },
           { in: 'query', name: 'limit', schema: { type: 'integer', default: 10 } },

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const APIError = require('../utils/apiError');
+const { TASK_STATUSES, TASK_PRIORITIES } = require('../constants/task');
 const { validateTaskPayload, normalizeText } = require('../validators/taskValidator');
 
 function buildTaskQuery(query = {}) {
@@ -20,11 +21,11 @@ function buildTaskQuery(query = {}) {
     ];
   }
 
-  if (['todo', 'in-progress', 'done'].includes(status)) {
+  if (TASK_STATUSES.includes(status)) {
     filter.status = status;
   }
 
-  if (['low', 'medium', 'high'].includes(priority)) {
+  if (TASK_PRIORITIES.includes(priority)) {
     filter.priority = priority;
   }
 
