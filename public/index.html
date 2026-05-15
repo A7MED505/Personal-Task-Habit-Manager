@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Web-based CRUD Application</p>
+          <h1>TaskFlow Studio</h1>
+          <p class="hero-copy">
+            A vanilla JavaScript SPA for managing tasks, categories, search, priority, and status without page reloads.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button class="nav-button active" data-view="dashboard">Dashboard</button>
+          <button class="nav-button" data-view="tasks">Tasks</button>
+          <button class="nav-button" data-view="categories">Categories</button>
+        </div>
+      </header>
+
+      <section class="status-banner" id="flashMessage" aria-live="polite"></section>
+
+      <section class="stats-grid" id="dashboardView">
+        <article class="stat-card accent">
+          <span class="stat-label">Total Tasks</span>
+          <strong id="statTotal">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">To Do</span>
+          <strong id="statTodo">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">In Progress</span>
+          <strong id="statProgress">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Done</span>
+          <strong id="statDone">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Overdue</span>
+          <strong id="statOverdue">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Categories</span>
+          <strong id="statCategories">0</strong>
+        </article>
+      </section>
+
+      <section class="panel view active" id="tasksView">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Task Operations</p>
+            <h2>Manage tasks with filters and search</h2>
+          </div>
+          <button class="ghost-button" id="refreshAllBtn" type="button">Refresh Data</button>
+        </div>
+
+        <div class="grid two-col">
+          <div class="card">
+            <div class="card-head">
+              <h3>Filters</h3>
+              <button class="link-button" id="clearFiltersBtn" type="button">Clear</button>
+            </div>
+            <div class="form-grid filter-grid">
+              <label>
+                Search
+                <input id="taskSearch" type="search" placeholder="Search title or description" />
+              </label>
+              <label>
+                Status
+                <select id="taskStatusFilter">
+                  <option value="">All statuses</option>
+                  <option value="todo">To Do</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </label>
+              <label>
+                Priority
+                <select id="taskPriorityFilter">
+                  <option value="">All priorities</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+              <label>
+                Category
+                <select id="taskCategoryFilter">
+                  <option value="">All categories</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker" id="taskFormSubtitle">Create new item</p>
+                <h3 id="taskFormTitle">Add Task</h3>
+              </div>
+              <button class="link-button hidden" id="cancelTaskEdit" type="button">Cancel Edit</button>
+            </div>
+            <form id="taskForm" class="form-grid">
+              <input type="hidden" id="taskId" />
+              <label>
+                Title
+                <input id="taskTitle" type="text" maxlength="140" required />
+              </label>
+              <label class="full-width">
+                Description
+                <textarea id="taskDescription" rows="4" maxlength="1000" placeholder="Add context, steps, or references..."></textarea>
+              </label>
+              <label>
+                Status
+                <select id="taskStatus">
+                  <option value="todo">To Do</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </label>
+              <label>
+                Priority
+                <select id="taskPriority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+              <label>
+                Category
+                <select id="taskCategoryId">
+                  <option value="">Uncategorized</option>
+                </select>
+              </label>
+              <label>
+                Due Date
+                <input id="taskDueDate" type="datetime-local" />
+              </label>
+              <div class="form-actions full-width">
+                <button class="primary-button" type="submit">Save Task</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card list-card">
+          <div class="card-head">
+            <div>
+              <p class="section-kicker">Task List</p>
+              <h3>Current items</h3>
+            </div>
+            <span class="subtle" id="taskCountLabel">0 items</span>
+          </div>
+          <div id="taskList" class="task-list"></div>
+        </div>
+
+        <div class="card list-card">
+          <div class="card-head">
+            <div>
+              <p class="section-kicker">Recent Activity</p>
+              <h3>Latest tasks</h3>
+            </div>
+          </div>
+          <div id="dashboardRecent" class="task-list compact"></div>
+        </div>
+      </section>
+
+      <section class="panel view" id="categoriesView">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Category Operations</p>
+            <h2>Organize work with categories</h2>
+          </div>
+        </div>
+
+        <div class="grid two-col">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker" id="categoryFormSubtitle">Create new category</p>
+                <h3 id="categoryFormTitle">Add Category</h3>
+              </div>
+              <button class="link-button hidden" id="cancelCategoryEdit" type="button">Cancel Edit</button>
+            </div>
+            <form id="categoryForm" class="form-grid">
+              <input type="hidden" id="categoryId" />
+              <label>
+                Name
+                <input id="categoryName" type="text" maxlength="80" required />
+              </label>
+              <label class="full-width">
+                Description
+                <textarea id="categoryDescription" rows="4" maxlength="240" placeholder="What belongs in this category?"></textarea>
+              </label>
+              <div class="form-actions full-width">
+                <button class="primary-button" type="submit">Save Category</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card list-card">
+            <div class="card-head">
+              <div>
+                <p class="section-kicker">Category List</p>
+                <h3>All categories</h3>
+              </div>
+              <span class="subtle" id="categoryCountLabel">0 items</span>
+            </div>
+            <div id="categoryList" class="category-list"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
