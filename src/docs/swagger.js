@@ -14,7 +14,20 @@ const swaggerDefinition = {
       description: 'Local development server'
     }
   ],
+  security: [
+    {
+      bearerAuth: []
+    }
+  ],
   components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT Bearer token. Register or login first to get a token from /api/auth/register or /api/auth/login'
+      }
+    },
     schemas: {
       Category: {
         type: 'object',
