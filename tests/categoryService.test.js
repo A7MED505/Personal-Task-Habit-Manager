@@ -22,7 +22,7 @@ test('validateCategoryPayload trims category fields', () => {
 
 test('deleteCategory blocks removal when tasks still reference it', async () => {
   const CategoryModel = {
-    findByIdAndDelete: async () => null
+    findOneAndDelete: async () => null
   };
 
   const TaskModel = {
@@ -39,7 +39,7 @@ test('deleteCategory removes an unused category', async () => {
   const deleted = { _id: '507f1f77bcf86cd799439011', name: 'Learning', toObject: () => deleted };
 
   const CategoryModel = {
-    findByIdAndDelete: async () => deleted
+    findOneAndDelete: async () => deleted
   };
 
   const TaskModel = {

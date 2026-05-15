@@ -111,7 +111,7 @@ test('updateTask clears completedAt when task returns to todo', async () => {
   };
 
   const TaskModel = {
-    findById: async () => savedTask
+    findOne: async () => savedTask
   };
 
   const CategoryModel = {
