@@ -29,6 +29,38 @@ const swaggerDefinition = {
       }
     },
     schemas: {
+      AuthInput: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+          email: { type: 'string', example: 'ahmed@gmail.com' },
+          password: { type: 'string', example: 'Ahmed123' }
+        }
+      },
+      RegisterInput: {
+        type: 'object',
+        required: ['username', 'email', 'password'],
+        properties: {
+          username: { type: 'string', example: 'ahmed' },
+          email: { type: 'string', example: 'ahmed@gmail.com' },
+          password: { type: 'string', example: 'Ahmed123' }
+        }
+      },
+      UserProfile: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: '663d3f5e9b5e3d0012345678' },
+          username: { type: 'string', example: 'ahmed' },
+          email: { type: 'string', example: 'ahmed@gmail.com' }
+        }
+      },
+      AuthResponse: {
+        type: 'object',
+        properties: {
+          token: { type: 'string' },
+          user: { $ref: '#/components/schemas/UserProfile' }
+        }
+      },
       Category: {
         type: 'object',
         properties: {
@@ -131,10 +163,97 @@ const swaggerDefinition = {
     '/api/health': {
       get: {
         summary: 'Health check',
+        security: [],
         responses: {
           200: {
             description: 'Service is healthy'
           }
+        }
+      }
+    },
+    '/api/auth/register': {
+      post: {
+        summary: 'Register a new user',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/RegisterInput' }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: 'User registered',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: { $ref: '#/components/schemas/AuthResponse' }
+                  }
+                }
+              }
+            }
+          },
+          409: { description: 'Email already registered' },
+          422: { description: 'Validation failed' }
+        }
+      }
+    },
+    '/api/auth/login': {
+      post: {
+        summary: 'Login user and get JWT',
+        security: [],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/AuthInput' }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Login successful',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: { $ref: '#/components/schemas/AuthResponse' }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Invalid email or password' },
+          422: { description: 'Validation failed' }
+        }
+      }
+    },
+    '/api/auth/me': {
+      get: {
+        summary: 'Get current authenticated user profile',
+        responses: {
+          200: {
+            description: 'Current user profile',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    data: { $ref: '#/components/schemas/UserProfile' }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: 'Invalid or missing token' }
         }
       }
     },
