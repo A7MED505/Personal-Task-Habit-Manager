@@ -1,122 +1,173 @@
 # TaskFlow Studio
 
-A full-stack web-based CRUD application built with Vanilla JavaScript, Node.js, Express, MongoDB, and Swagger.
+A full-stack task and habit manager built with Vanilla JavaScript, Node.js, Express, MongoDB, and Swagger.
 
-## Features
+## Overview
 
-- Vanilla JavaScript SPA frontend with no React, Vue, or Angular
-- Full CRUD for tasks
-- Category management for a simple relationship between tasks and categories
-- Search, filter, and status/priority tracking
-- RESTful JSON API with proper HTTP methods and status codes
-- Swagger UI at `/api-docs`
-- Unit tests for business logic and validation functions
+TaskFlow Studio provides:
+
+- A Vanilla JavaScript SPA frontend
+- A REST API with authentication using JWT
+- CRUD operations for tasks and categories
+- Search, filtering, pagination, and task statistics
+- Interactive API docs with Swagger UI
+- Unit tests for service and validation layers
+
+## Tech Stack
+
+- Frontend: Vanilla JavaScript, HTML, CSS
+- Backend: Node.js, Express
+- Database: MongoDB with Mongoose
+- Auth: JWT + bcrypt
+- API Docs: swagger-jsdoc + swagger-ui-express
+- Testing: Node.js built-in test runner
 
 ## Project Structure
 
-- `public/` - SPA frontend
+- `public/` - frontend SPA files
+- `src/app.js` - Express app and middleware wiring
+- `src/config/` - database connection
 - `src/controllers/` - request handlers
 - `src/services/` - business logic
-- `src/routes/` - API routes only
-- `src/models/` - MongoDB schemas
+- `src/routes/` - API route definitions
+- `src/models/` - Mongoose models
+- `src/validators/` - request payload validation
+- `src/middleware/` - auth and error middleware
+- `src/docs/` - Swagger/OpenAPI configuration
 - `tests/` - unit tests
+- `server.js` - application bootstrap
 
 ## Requirements
 
-- Node.js 18 or newer
-- MongoDB running locally or a cloud MongoDB URI
+- Node.js 18+
+- MongoDB (local instance or cloud URI)
+
+## Environment Variables
+
+Create `.env` from `.env.example` and update values:
+
+```bash
+copy .env.example .env
+```
+
+Required variables:
+
+- `PORT` - server port (default `3000`)
+- `MONGODB_URI` - MongoDB connection string
+- `JWT_SECRET` - JWT signing secret
+- `JWT_EXPIRES_IN` - token expiration (default `7d`)
 
 ## Installation
 
-1. Install dependencies:
+```bash
+npm install
+```
 
-   ```bash
-   npm install
-   ```
+## Run
 
-2. Create an `.env` file from `.env.example`:
-
-   ```bash
-   copy .env.example .env
-   ```
-
-3. Update `MONGODB_URI` in `.env` if needed.
-
-## Running the Project
-
-Start the API and frontend:
+Development mode:
 
 ```bash
 npm run dev
 ```
 
-Open:
+Production mode:
+
+```bash
+npm start
+```
+
+## URLs
 
 - App: `http://localhost:3000`
 - Swagger UI: `http://localhost:3000/api-docs`
-- Health check: `http://localhost:3000/api/health`
+- Health Check: `http://localhost:3000/api/health`
 
-## Testing
+## Authentication Flow
 
-Run the unit tests:
+1. Register a user with `POST /api/auth/register`
+2. Login with `POST /api/auth/login`
+3. Copy the returned Bearer token
+4. Use header `Authorization: Bearer <token>` for protected endpoints
 
-```bash
-npm test
-```
+Protected route groups:
 
-The tests focus on the business logic in the service and validation layers, not the routes themselves.
+- `/api/tasks/*`
+- `/api/categories/*`
+- `/api/auth/me`
 
-## Database Model
+Public route groups:
+
+- `/api/health`
+- `/api/auth/register`
+- `/api/auth/login`
+- `/api-docs`
+- `/`
+
+## API Overview
+
+### Auth
+
+- `POST /api/auth/register` - register a new user
+- `POST /api/auth/login` - login and get token
+- `GET /api/auth/me` - get current user profile (protected)
+
+### Tasks (protected)
+
+- `GET /api/tasks` - list tasks with search/filter/pagination/sorting
+- `POST /api/tasks` - create task
+- `GET /api/tasks/:id` - get task by id
+- `PATCH /api/tasks/:id` - update task
+- `DELETE /api/tasks/:id` - delete task
+- `GET /api/tasks/stats` - dashboard task stats
+
+### Categories (protected)
+
+- `GET /api/categories` - list categories
+- `POST /api/categories` - create category
+- `GET /api/categories/:id` - get category by id
+- `PATCH /api/categories/:id` - update category
+- `DELETE /api/categories/:id` - delete category
+
+## Data Models
 
 ### Task
-
-Fields:
 
 - `title`
 - `description`
 - `status` (`todo`, `in-progress`, `done`)
 - `priority` (`low`, `medium`, `high`)
-- `categoryId` (optional reference to a category)
+- `categoryId` (optional relation)
 - `dueDate`
 - `completedAt`
 
 ### Category
 
-Fields:
-
 - `name`
 - `description`
 
-## API Overview
+## Testing
 
-### Tasks
-
-- `GET /api/tasks` - list tasks with search and filters
-- `POST /api/tasks` - create task
-- `GET /api/tasks/:id` - get one task
-- `PATCH /api/tasks/:id` - update task
-- `DELETE /api/tasks/:id` - delete task
-- `GET /api/tasks/stats` - dashboard stats
-
-### Categories
-
-- `GET /api/categories` - list categories
-- `POST /api/categories` - create category
-- `GET /api/categories/:id` - get one category
-- `PATCH /api/categories/:id` - update category
-- `DELETE /api/categories/:id` - delete category
-
-## Example Request
+Run all tests:
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks ^
-  -H "Content-Type: application/json" ^
-  -d "{\"title\":\"Read chapter 1\",\"status\":\"todo\",\"priority\":\"medium\"}"
+npm test
 ```
 
-## Doctor Notes
+Tests focus on:
 
-- Business logic lives in `src/services/`, not in the routes.
-- Unit tests cover validation and core CRUD logic helpers.
-- Swagger UI can be used to inspect and try every API endpoint.
-- The frontend updates with `fetch()` without page reloads.
+- business logic in services
+- validation behavior
+
+## Quick API Example (Windows curl)
+
+```bash
+curl -X POST http://localhost:3000/api/auth/register ^
+   -H "Content-Type: application/json" ^
+   -d "{\"username\":\"ahmed\",\"email\":\"ahmed@gmail.com\",\"password\":\"Ahmed123\"}"
+```
+
+## Notes
+
+- Use Swagger UI to explore and test endpoints quickly.
+- Keep business logic in `src/services/` and thin controllers in `src/controllers/`.
